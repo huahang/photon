@@ -1,0 +1,3 @@
+# photon 库的顶层包：各功能模块位于子目录中，此处不定义具体目标。
+
+package(default_visibility = ["//visibility:private"])

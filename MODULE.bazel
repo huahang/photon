@@ -1,0 +1,15 @@
+"""photon —— 相机 RAW / JPEG / HEIF 照片与 MP4 / MOV 视频的整理工具集。"""
+
+module(
+    name = "photon",
+    version = "0.1.0",
+    compatibility_level = 1,
+)
+
+# 第三方依赖统一来自 Bazel Central Registry（https://registry.bazel.build）。
+# 新增依赖时优先查找 BCR 中的模块，仅在 BCR 缺失时才考虑 http_archive 等方式。
+bazel_dep(name = "rules_cc", version = "0.2.22")
+bazel_dep(name = "abseil-cpp", version = "20260817.0")
+
+# 仅测试使用的依赖。
+bazel_dep(name = "googletest", version = "1.18.0.bcr.1", dev_dependency = True)

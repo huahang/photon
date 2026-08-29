@@ -1,0 +1,12 @@
+# photon 静态检查配置。检查命令示例：
+#   xcrun clang-tidy photon/media/media_type.cc -- -std=c++20 -I.
+Checks: >
+  bugprone-*,
+  performance-*,
+  readability-*,
+  modernize-*,
+  -modernize-use-trailing-return-type,
+  -readability-identifier-length,
+  -readability-magic-numbers
+WarningsAsErrors: ''
+HeaderFilterRegex: '^photon/.*'

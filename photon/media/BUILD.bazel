@@ -1,0 +1,25 @@
+# 媒体层：媒体文件类型的识别与描述。
+
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+
+package(default_visibility = ["//photon:__subpackages__"])
+
+cc_library(
+    name = "media_type",
+    srcs = ["media_type.cc"],
+    hdrs = ["media_type.h"],
+    deps = [
+        "@abseil-cpp//absl/container:flat_hash_map",
+        "@abseil-cpp//absl/strings",
+    ],
+)
+
+cc_test(
+    name = "media_type_test",
+    size = "small",
+    srcs = ["media_type_test.cc"],
+    deps = [
+        ":media_type",
+        "@googletest//:gtest_main",
+    ],
+)

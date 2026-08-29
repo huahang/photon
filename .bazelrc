@@ -1,0 +1,42 @@
+# ============================================================================
+# photon 项目的 Bazel 通用配置
+# ============================================================================
+
+# 允许按平台（macos / linux）追加差异化配置。
+common --enable_platform_specific_config
+
+# ---------------------------------------------------------------------------
+# C++ 语言标准与告警
+# ---------------------------------------------------------------------------
+build --cxxopt=-std=c++20
+build --host_cxxopt=-std=c++20
+build --copt=-Wall
+build --copt=-Wextra
+
+# ---------------------------------------------------------------------------
+# 测试
+# ---------------------------------------------------------------------------
+test --test_output=errors
+test --test_summary=detailed
+
+# ---------------------------------------------------------------------------
+# 常用构建配置（用法：bazelisk build --config=release //...）
+# ---------------------------------------------------------------------------
+build:debug -c dbg
+build:release -c opt
+
+# 地址消毒器：排查越界与释放后使用。
+build:asan -c dbg
+build:asan --copt=-fsanitize=address
+build:asan --copt=-fno-omit-frame-pointer
+build:asan --linkopt=-fsanitize=address
+
+# 未定义行为消毒器。
+build:ubsan -c dbg
+build:ubsan --copt=-fsanitize=undefined
+build:ubsan --linkopt=-fsanitize=undefined
+
+# ---------------------------------------------------------------------------
+# 个人本地配置（可选，不纳入版本管理）
+# ---------------------------------------------------------------------------
+try-import %workspace%/user.bazelrc

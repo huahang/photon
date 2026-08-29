@@ -1,0 +1,28 @@
+# 扫描层：遍历目录、发现媒体文件。
+
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+
+package(default_visibility = ["//photon:__subpackages__"])
+
+cc_library(
+    name = "scanner",
+    srcs = ["scanner.cc"],
+    hdrs = ["scanner.h"],
+    deps = [
+        "//photon/media:media_type",
+        "@abseil-cpp//absl/status",
+        "@abseil-cpp//absl/status:statusor",
+        "@abseil-cpp//absl/strings",
+    ],
+)
+
+cc_test(
+    name = "scanner_test",
+    size = "small",
+    srcs = ["scanner_test.cc"],
+    deps = [
+        ":scanner",
+        "//photon/media:media_type",
+        "@googletest//:gtest_main",
+    ],
+)

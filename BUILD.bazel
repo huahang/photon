@@ -1,0 +1,8 @@
+# 仓库根包：目前仅承载全局配置，具体目标位于 //photon/... 之下。
+
+package(default_visibility = ["//visibility:private"])
+
+exports_files([
+    ".clang-format",
+    ".clang-tidy",
+])

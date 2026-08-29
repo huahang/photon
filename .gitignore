@@ -1,0 +1,18 @@
+# Bazel 生成的符号链接与输出目录
+/bazel-*
+
+# 本地个人 Bazel 配置（由 .bazelrc 的 try-import 引入，不纳入版本管理）
+/user.bazelrc
+
+# clangd / 编辑器索引
+/compile_commands.json
+/.cache/
+/external/
+
+# macOS
+.DS_Store
+
+# 编辑器 / IDE
+.vscode/
+.idea/
+*.swp

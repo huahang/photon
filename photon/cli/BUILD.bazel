@@ -1,0 +1,16 @@
+# 命令行层：photon 可执行程序的入口。
+
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+
+package(default_visibility = ["//visibility:public"])
+
+cc_binary(
+    name = "photon",
+    srcs = ["main.cc"],
+    deps = [
+        "//photon/media:media_type",
+        "//photon/scan:scanner",
+        "@abseil-cpp//absl/status:statusor",
+        "@abseil-cpp//absl/strings:str_format",
+    ],
+)
