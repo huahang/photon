@@ -35,10 +35,38 @@ bazelisk run //photon/cli:photon -- scan /Users/hans/Pictures/2026
 其他：
 
 ```bash
-bazelisk test --config=asan //...     # 地址消毒器；另有 --config=ubsan / debug / release
-xcrun clang-format -i photon/scan/scanner.cc   # 格式化（clang-format 随 Xcode 提供，不在 PATH 中）
-bazelisk clean                        # 清理输出
+bazelisk test --config=asan //...   # 地址消毒器；另有 --config=ubsan / debug / release
+bazelisk clean                      # 清理输出
 ```
+
+### 代码风格检查
+
+三件套 clang-format / cpplint / clang-tidy 的版本在 `tools/requirements-lint.txt` 中固定，
+**必须用它安装**。不要用 `xcrun clang-format` 或系统自带版本：版本不同会导致本地通过、CI 报错。
+
+```bash
+python3 -m pip install -r tools/requirements-lint.txt
+tools/lint.sh         # 三项检查，与 CI 跑的是同一个脚本
+tools/lint.sh --fix   # 先用 clang-format 就地修复格式，再跑其余检查
+```
+
+几条要点：
+
+- clang-tidy 配了 `WarningsAsErrors: '*'`，**任何告警都会让 CI 失败**。确实不适用的检查，
+  请在 `.clang-tidy` 的 `Checks` 里显式关闭并写明原因，不要靠 `// NOLINT` 逐处掩盖。
+- clang-tidy 要读 Bazel 拉下来的外部头文件，跑之前先执行一次 `bazelisk build //...`。
+- **新增第三方依赖后，要在 `tools/lint.sh` 里补上它的头文件路径**，否则 clang-tidy 会报找不到头文件。
+- cpplint 的配置在根目录 `CPPLINT.cfg`：行宽对齐到 100，并关掉了版权头与
+  `build/c++17`（本项目有意使用 std::filesystem）两项检查。
+
+## 持续集成
+
+`.github/workflows/ci.yml` 在推送到 `main` 以及所有针对 `main` 的 PR 上运行两个 job：
+
+- **构建与测试**：ubuntu-latest 与 macos-latest 各跑一遍 `bazel build //...` 与 `bazel test //...`
+- **代码风格**：ubuntu-latest 上跑 `tools/lint.sh`
+
+`main` 分支受保护：**不能直接 push，必须走 PR，且上述检查全绿才能合并**。
 
 ## 架构
 

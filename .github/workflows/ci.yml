@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# 同一分支上的新推送会取消尚未跑完的旧任务。
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: 构建与测试 (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: 准备 Bazel
+        uses: bazel-contrib/setup-bazel@0.19.0
+        with:
+          # 按 .bazelversion 缓存 Bazel 本体，避免每次重新下载。
+          bazelisk-cache: true
+          # 按 MODULE.bazel 缓存外部依赖。
+          repository-cache: true
+          disk-cache: ${{ github.workflow }}-${{ matrix.os }}
+          # PR 只读缓存、不写回，避免 fork 的 PR 污染主分支缓存。
+          cache-save: ${{ github.event_name == 'push' }}
+
+      - name: 构建
+        run: bazel build //...
+
+      - name: 测试
+        run: bazel test //...
+
+      - name: 失败时上传测试日志
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-logs-${{ matrix.os }}
+          path: bazel-testlogs/**/test.log
+          retention-days: 7
+          if-no-files-found: ignore
+
+  lint:
+    name: 代码风格
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: 准备 Bazel
+        uses: bazel-contrib/setup-bazel@0.19.0
+        with:
+          bazelisk-cache: true
+          repository-cache: true
+          disk-cache: ${{ github.workflow }}-lint
+          cache-save: ${{ github.event_name == 'push' }}
+
+      - name: 准备 Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: tools/requirements-lint.txt
+
+      - name: 安装检查工具
+        run: python -m pip install -r tools/requirements-lint.txt
+
+      # clang-tidy 需要外部依赖的头文件，先让 Bazel 把它们取下来。
+      - name: 拉取外部依赖
+        run: bazel build //...
+
+      - name: clang-format / cpplint / clang-tidy
+        run: tools/lint.sh

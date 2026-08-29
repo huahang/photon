@@ -36,7 +36,14 @@ bazelisk run //photon/cli:photon -- scan ~/Pictures/2026
 ## 开发约定
 
 - 注释与文档使用中文，注释采用 Doxygen 风格。
-- 代码风格基于 Google C++ Style，格式由 `.clang-format` 约束（行宽 100）。
+- 代码风格基于 Google C++ Style，由 clang-format、cpplint、clang-tidy 三重把关：
+
+  ```bash
+  python3 -m pip install -r tools/requirements-lint.txt
+  tools/lint.sh --fix
+  ```
+
 - 提交信息遵循 [Conventional Commits](https://www.conventionalcommits.org/zh-hans/)。
+- `main` 分支受保护，改动一律走 Pull Request，CI 全绿后合并。
 
 面向协作 Agent 的详细约定见 [CLAUDE.md](CLAUDE.md)。
