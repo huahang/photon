@@ -2,6 +2,17 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 协作边界
+
+**改动一律走 Pull Request，合入由用户决定。**
+
+- 允许：在功能分支上提交、`git push origin <功能分支>`、`gh pr create`，然后停下来等用户 review。
+- 禁止：`git push origin main`、`gh pr merge`、本地 merge 后推送 `main`，以及任何等效操作。
+- 禁止为绕开阻碍而删除或放宽分支保护。规则挡住你时，正确反应是停下来告诉用户，而不是解开规则。
+- 不要以"验证保护规则是否生效"为由推送 `main`。分支保护刚创建时存在传播延迟，
+  此时推送可能仍会成功 —— 不能因为推上去了就认为规则没配好。要查状态就读 API：
+  `gh api repos/huahang/photon/branches/main/protection`。
+
 ## 协作语言
 
 与用户沟通、代码注释、项目文档、commit message 一律使用**中文**；标识符、类型名、
