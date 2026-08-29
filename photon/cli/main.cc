@@ -6,11 +6,16 @@
  *   - scan <目录>：递归扫描目录，按媒体类型汇总文件数量与体积。
  */
 
+#include <array>
+#include <cstddef>
+#include <cstdint>
 #include <cstdio>
+#include <exception>
 #include <filesystem>
 #include <map>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include "absl/status/statusor.h"
@@ -43,10 +48,10 @@ void PrintUsage() {
  * @return 形如 "1.5 GiB" 的字符串。
  */
 std::string FormatSize(std::uintmax_t bytes) {
-  constexpr std::string_view kUnits[] = {"B", "KiB", "MiB", "GiB", "TiB"};
-  double value = static_cast<double>(bytes);
+  constexpr std::array<std::string_view, 5> kUnits = {"B", "KiB", "MiB", "GiB", "TiB"};
+  auto value = static_cast<double>(bytes);
   size_t unit = 0;
-  while (value >= 1024.0 && unit + 1 < std::size(kUnits)) {
+  while (value >= 1024.0 && unit + 1 < kUnits.size()) {
     value /= 1024.0;
     ++unit;
   }
@@ -117,19 +122,26 @@ int RunScan(const std::vector<std::string_view>& args) {
  * @return 进程退出码。
  */
 int main(int argc, char** argv) {
-  const std::vector<std::string_view> args(argv + 1, argv + argc);
-  if (args.empty()) {
+  // 本项目自身用 absl::Status 表达可预期的失败，不抛异常；但标准库仍可能抛
+  // （内存不足、路径编码非法等）。这里兜底，避免直接 terminate 而不给用户任何提示。
+  try {
+    const std::vector<std::string_view> args(argv + 1, argv + argc);
+    if (args.empty()) {
+      photon::cli::PrintUsage();
+      return 2;
+    }
+    if (args[0] == "scan") {
+      return photon::cli::RunScan({args.begin() + 1, args.end()});
+    }
+    if (args[0] == "--help" || args[0] == "-h" || args[0] == "help") {
+      photon::cli::PrintUsage();
+      return 0;
+    }
+    absl::FPrintF(stderr, "未知子命令：%s\n", args[0]);
     photon::cli::PrintUsage();
     return 2;
+  } catch (const std::exception& e) {
+    absl::FPrintF(stderr, "发生未预期的错误：%s\n", e.what());
+    return 1;
   }
-  if (args[0] == "scan") {
-    return photon::cli::RunScan({args.begin() + 1, args.end()});
-  }
-  if (args[0] == "--help" || args[0] == "-h" || args[0] == "help") {
-    photon::cli::PrintUsage();
-    return 0;
-  }
-  absl::FPrintF(stderr, "未知子命令：%s\n", args[0]);
-  photon::cli::PrintUsage();
-  return 2;
 }

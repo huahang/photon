@@ -7,6 +7,11 @@ Checks: >
   modernize-*,
   -modernize-use-trailing-return-type,
   -readability-identifier-length,
-  -readability-magic-numbers
-WarningsAsErrors: ''
-HeaderFilterRegex: '^photon/.*'
+  -readability-magic-numbers,
+  -bugprone-easily-swappable-parameters,
+  -modernize-use-std-format
+# CI 把 clang-tidy 当作闸门，因此告警必须视为错误；
+# 否则 clang-tidy 遇到告警仍返回 0，检查形同虚设。
+WarningsAsErrors: '*'
+# 与头文件的绝对路径匹配，因此不能用 ^ 锚定。
+HeaderFilterRegex: 'photon/.*'

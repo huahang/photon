@@ -6,6 +6,7 @@
 #ifndef PHOTON_MEDIA_MEDIA_TYPE_H_
 #define PHOTON_MEDIA_MEDIA_TYPE_H_
 
+#include <cstdint>
 #include <filesystem>
 #include <string_view>
 
@@ -13,8 +14,11 @@ namespace photon::media {
 
 /**
  * @brief 相机产出的媒体文件类型。
+ *
+ * 显式指定 1 字节的底层类型：该枚举会大量存放在 MediaFile 数组中，
+ * 缩小它可以减少扫描大目录时的内存占用。
  */
-enum class MediaType {
+enum class MediaType : std::uint8_t {
   kUnknown = 0,  ///< 无法识别的类型
   kRawImage,     ///< 相机 RAW 原始图像，如 CR3 / NEF / ARW / DNG
   kJpegImage,    ///< JPEG 图像

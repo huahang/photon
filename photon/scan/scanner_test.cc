@@ -57,7 +57,7 @@ TEST_F(ScannerTest, 递归收集媒体文件并忽略未知类型) {
 
   const auto files = ScanDirectory(root_);
   ASSERT_TRUE(files.ok()) << files.status();
-  EXPECT_EQ(files->size(), 3u);
+  EXPECT_EQ(files->size(), 3U);
 }
 
 TEST_F(ScannerTest, 保留未知类型的选项生效) {
@@ -68,7 +68,7 @@ TEST_F(ScannerTest, 保留未知类型的选项生效) {
   options.include_unknown = true;
   const auto files = ScanDirectory(root_, options);
   ASSERT_TRUE(files.ok()) << files.status();
-  EXPECT_EQ(files->size(), 2u);
+  EXPECT_EQ(files->size(), 2U);
 }
 
 TEST_F(ScannerTest, 非递归模式只看根目录一层) {
@@ -79,7 +79,7 @@ TEST_F(ScannerTest, 非递归模式只看根目录一层) {
   options.recursive = false;
   const auto files = ScanDirectory(root_, options);
   ASSERT_TRUE(files.ok()) << files.status();
-  ASSERT_EQ(files->size(), 1u);
+  ASSERT_EQ(files->size(), 1U);
   EXPECT_EQ((*files)[0].path.filename(), "IMG_0001.CR3");
 }
 
@@ -90,7 +90,7 @@ TEST_F(ScannerTest, 默认跳过隐藏文件与隐藏目录) {
 
   const auto files = ScanDirectory(root_);
   ASSERT_TRUE(files.ok()) << files.status();
-  ASSERT_EQ(files->size(), 1u);
+  ASSERT_EQ(files->size(), 1U);
   EXPECT_EQ((*files)[0].path.filename(), "IMG_0004.jpg");
 }
 
@@ -100,13 +100,13 @@ TEST_F(ScannerTest, 结果按路径排序且携带类型与大小) {
 
   const auto files = ScanDirectory(root_);
   ASSERT_TRUE(files.ok()) << files.status();
-  ASSERT_EQ(files->size(), 2u);
+  ASSERT_EQ(files->size(), 2U);
   EXPECT_EQ((*files)[0].path.filename(), "a.mp4");
   EXPECT_EQ((*files)[0].type, media::MediaType::kVideo);
-  EXPECT_EQ((*files)[0].size_bytes, 10u);
+  EXPECT_EQ((*files)[0].size_bytes, 10U);
   EXPECT_EQ((*files)[1].path.filename(), "b.jpg");
   EXPECT_EQ((*files)[1].type, media::MediaType::kJpegImage);
-  EXPECT_EQ((*files)[1].size_bytes, 5u);
+  EXPECT_EQ((*files)[1].size_bytes, 5U);
 }
 
 TEST_F(ScannerTest, 目录不存在时返回NotFound) {

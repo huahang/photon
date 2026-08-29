@@ -1,0 +1,8 @@
+# 代码风格检查工具，版本固定以保证本地与 CI 结果一致。
+# 安装：python3 -m pip install -r tools/requirements-lint.txt
+#
+# clang-format 与 clang-tidy 都取 LLVM 21，与 Xcode 自带的 clang 主版本一致，
+# 避免本地格式化通过、CI 却报错。
+clang-format==21.1.8
+clang-tidy==21.1.6
+cpplint==2.0.2
