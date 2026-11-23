@@ -7,7 +7,8 @@
 #   tools/lint.sh          # 只检查，有问题则以非零码退出
 #   tools/lint.sh --fix    # 用 clang-format 就地修复格式，再跑其余检查
 #
-# 前置条件：python3 -m pip install -r tools/requirements-lint.txt
+# 前置条件：已安装 uv（https://docs.astral.sh/uv/）。
+# 工具版本由 pyproject.toml 与 uv.lock 固定，下面通过 uv run 安装并执行。
 
 # 注意：macOS 自带 bash 3.2，脚本需兼容它（不可用 mapfile、空数组等特性）。
 set -eo pipefail
@@ -23,6 +24,17 @@ BAZEL="${BAZEL:-bazelisk}"
 if ! command -v "$BAZEL" >/dev/null 2>&1; then
   BAZEL=bazel
 fi
+
+if ! command -v uv >/dev/null 2>&1; then
+  echo "未找到 uv，请先安装：https://docs.astral.sh/uv/" >&2
+  exit 1
+fi
+
+# 用锁文件里的版本运行，避免落到系统或 Xcode 自带的 clang。
+# `--` 把参数原样交给工具；clang-tidy 自己的 `--` 因此也能保留。
+run_tool() {
+  uv run --frozen -- "$@"
+}
 
 # 待检查的源文件：仓库自有代码，不含第三方。
 SOURCES=()
@@ -42,9 +54,9 @@ FAILED=
 # --------------------------------------------------------------------------
 echo "==> clang-format (${#SOURCES[@]} 个文件)"
 if [[ $FIX -eq 1 ]]; then
-  clang-format -i "${SOURCES[@]}"
+  run_tool clang-format -i "${SOURCES[@]}"
   echo "    已就地格式化"
-elif ! clang-format --dry-run --Werror "${SOURCES[@]}"; then
+elif ! run_tool clang-format --dry-run --Werror "${SOURCES[@]}"; then
   FAILED="$FAILED clang-format"
 fi
 
@@ -52,7 +64,7 @@ fi
 # 2. cpplint：Google 风格约定，配置见根目录 CPPLINT.cfg
 # --------------------------------------------------------------------------
 echo "==> cpplint"
-if ! cpplint --quiet "${SOURCES[@]}"; then
+if ! run_tool cpplint --quiet "${SOURCES[@]}"; then
   FAILED="$FAILED cpplint"
 fi
 
@@ -84,7 +96,7 @@ if [[ "$(uname -s)" == "Darwin" ]]; then
   TIDY_FLAGS+=(-isysroot "$(xcrun --show-sdk-path)")
 fi
 
-if ! clang-tidy --quiet "${SOURCES[@]}" -- "${TIDY_FLAGS[@]}"; then
+if ! run_tool clang-tidy --quiet "${SOURCES[@]}" -- "${TIDY_FLAGS[@]}"; then
   FAILED="$FAILED clang-tidy"
 fi
 

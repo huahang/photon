@@ -1,0 +1,11 @@
+diff --git a/BUILD b/BUILD
+--- a/BUILD
++++ b/BUILD
+@@ -156,6 +156,7 @@ cc_library(
+         "hwy/print.h",
+         "hwy/x86_cpuid.h",
+     ],
++    includes = ["."],
+     compatible_with = [],
+     copts = COPTS,
+     defines = DEFINES,

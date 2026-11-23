@@ -39,11 +39,13 @@ bazelisk run //photon/cli:photon -- scan ~/Pictures/2026
 - 代码风格基于 Google C++ Style，由 clang-format、cpplint、clang-tidy 三重把关：
 
   ```bash
-  python3 -m pip install -r tools/requirements-lint.txt
   tools/lint.sh --fix
   ```
+
+  需要已安装 [uv](https://docs.astral.sh/uv/)。工具版本由 `pyproject.toml` 与 `uv.lock` 锁定，
+  脚本内部通过 `uv run` 安装并执行。
 
 - 提交信息遵循 [Conventional Commits](https://www.conventionalcommits.org/zh-hans/)。
 - `main` 分支受保护，改动一律走 Pull Request，CI 全绿后合并。
 
-面向协作 Agent 的详细约定见 [CLAUDE.md](CLAUDE.md)。
+面向协作 Agent 的详细约定见 [AGENTS.md](AGENTS.md)。
