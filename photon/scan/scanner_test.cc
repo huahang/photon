@@ -49,7 +49,7 @@ class ScannerTest : public ::testing::Test {
   fs::path root_;
 };
 
-TEST_F(ScannerTest, 递归收集媒体文件并忽略未知类型) {
+TEST_F(ScannerTest, RecursivelyCollectsMediaAndIgnoresUnknown) {
   WriteFile("IMG_0001.CR3");
   WriteFile("2026-08-29/IMG_0002.jpg");
   WriteFile("2026-08-29/VIDEO.MOV");
@@ -60,7 +60,7 @@ TEST_F(ScannerTest, 递归收集媒体文件并忽略未知类型) {
   EXPECT_EQ(files->size(), 3U);
 }
 
-TEST_F(ScannerTest, 保留未知类型的选项生效) {
+TEST_F(ScannerTest, IncludeUnknownKeepsUnknownFiles) {
   WriteFile("IMG_0001.CR3");
   WriteFile("笔记.txt");
 
@@ -71,7 +71,7 @@ TEST_F(ScannerTest, 保留未知类型的选项生效) {
   EXPECT_EQ(files->size(), 2U);
 }
 
-TEST_F(ScannerTest, 非递归模式只看根目录一层) {
+TEST_F(ScannerTest, NonRecursiveScansOnlyTopLevel) {
   WriteFile("IMG_0001.CR3");
   WriteFile("子目录/IMG_0002.CR3");
 
@@ -83,7 +83,7 @@ TEST_F(ScannerTest, 非递归模式只看根目录一层) {
   EXPECT_EQ((*files)[0].path.filename(), "IMG_0001.CR3");
 }
 
-TEST_F(ScannerTest, 默认跳过隐藏文件与隐藏目录) {
+TEST_F(ScannerTest, SkipsHiddenFilesAndDirectoriesByDefault) {
   WriteFile(".隐藏.jpg");
   WriteFile(".缓存/IMG_0003.jpg");
   WriteFile("IMG_0004.jpg");
@@ -94,7 +94,7 @@ TEST_F(ScannerTest, 默认跳过隐藏文件与隐藏目录) {
   EXPECT_EQ((*files)[0].path.filename(), "IMG_0004.jpg");
 }
 
-TEST_F(ScannerTest, 结果按路径排序且携带类型与大小) {
+TEST_F(ScannerTest, ResultsAreSortedWithTypeAndSize) {
   WriteFile("b.jpg", "12345");
   WriteFile("a.mp4", "1234567890");
 
@@ -109,13 +109,13 @@ TEST_F(ScannerTest, 结果按路径排序且携带类型与大小) {
   EXPECT_EQ((*files)[1].size_bytes, 5U);
 }
 
-TEST_F(ScannerTest, 目录不存在时返回NotFound) {
+TEST_F(ScannerTest, ReturnsNotFoundWhenDirectoryMissing) {
   const auto files = ScanDirectory(root_ / "不存在");
   ASSERT_FALSE(files.ok());
   EXPECT_EQ(files.status().code(), absl::StatusCode::kNotFound);
 }
 
-TEST_F(ScannerTest, 传入普通文件时返回InvalidArgument) {
+TEST_F(ScannerTest, ReturnsInvalidArgumentForRegularFile) {
   WriteFile("IMG_0001.CR3");
 
   const auto files = ScanDirectory(root_ / "IMG_0001.CR3");

@@ -1,0 +1,6 @@
+"""jpegli 未发布到 BCR 时，根模块需要的补丁文件。"""
+
+exports_files(
+    ["highway_includes.patch"],
+    visibility = ["//visibility:public"],
+)

@@ -65,15 +65,10 @@ jobs:
           disk-cache: ${{ github.workflow }}-lint
           cache-save: ${{ github.event_name == 'push' }}
 
-      - name: 准备 Python
-        uses: actions/setup-python@v7
+      - name: 准备 uv
+        uses: astral-sh/setup-uv@v10.4.0
         with:
-          python-version: '3.12'
-          cache: pip
-          cache-dependency-path: tools/requirements-lint.txt
-
-      - name: 安装检查工具
-        run: python -m pip install -r tools/requirements-lint.txt
+          enable-cache: true
 
       # clang-tidy 需要外部依赖的头文件，先让 Bazel 把它们取下来。
       - name: 拉取外部依赖

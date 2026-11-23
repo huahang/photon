@@ -1,0 +1,14 @@
+[project]
+name = "photon"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = []
+
+# 代码风格检查工具。clang-format 与 clang-tidy 取 LLVM 21，
+# 与 Xcode 自带 clang 的主版本一致，避免本地通过、CI 报错。
+[dependency-groups]
+dev = [
+    "clang-format==21.1.8",
+    "clang-tidy==21.1.6",
+    "cpplint==2.0.2",
+]
