@@ -1,16 +1,72 @@
-# 命令行层：photon 可执行程序的入口。
+# 命令行层：photon 可执行程序的入口，以及可单测的子命令实现。
 
-load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 
 package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "format_size",
+    srcs = ["format_size.cc"],
+    hdrs = ["format_size.h"],
+    deps = ["@abseil-cpp//absl/strings:str_format"],
+)
+
+cc_library(
+    name = "usage",
+    srcs = ["usage.cc"],
+    hdrs = ["usage.h"],
+)
+
+cc_library(
+    name = "scan_command",
+    srcs = ["scan_command.cc"],
+    hdrs = ["scan_command.h"],
+    deps = [
+        ":format_size",
+        ":usage",
+        "//photon/media:media_type",
+        "//photon/scan:scanner",
+        "@abseil-cpp//absl/status:statusor",
+        "@abseil-cpp//absl/strings:str_format",
+    ],
+)
 
 cc_binary(
     name = "photon",
     srcs = ["main.cc"],
     deps = [
-        "//photon/media:media_type",
-        "//photon/scan:scanner",
-        "@abseil-cpp//absl/status:statusor",
+        ":scan_command",
+        ":usage",
         "@abseil-cpp//absl/strings:str_format",
+    ],
+)
+
+cc_test(
+    name = "format_size_test",
+    size = "small",
+    srcs = ["format_size_test.cc"],
+    deps = [
+        ":format_size",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "usage_test",
+    size = "small",
+    srcs = ["usage_test.cc"],
+    deps = [
+        ":usage",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "scan_command_test",
+    size = "small",
+    srcs = ["scan_command_test.cc"],
+    deps = [
+        ":scan_command",
+        "@googletest//:gtest_main",
     ],
 )
